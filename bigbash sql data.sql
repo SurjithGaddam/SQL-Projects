@@ -28,6 +28,30 @@ FORMAT(count(*) * 100.0/ tm.total_matches, 'N2')+'%' as winning_percentage
  order by 
  Total_wins desc;
 
+------- Total Sixes and Fours by team in all teh matches 
+with Team_Matches as (
+ select 
+ team as team,
+ COUNT(*) as total_matches 
+ from (
+   select team1 as team from [BBL_Matches 2011-2019]
+   union all 
+   select team2 as team from [BBL_Matches 2011-2019]
+   ) as Teams
+   group by team
+   ),
+   team_fours_sixes as (
+   select batting_team as team,
+   SUM(case when total_runs = 4 then 1 else 0 end) as total_fours,
+   SUM(case when total_runs = 6 then 1 else 0 end) as total_sixes
+   from [BBL_Ball_by_Ball ]
+   group by batting_team
+   )
+   select tm.team,tm.total_matches,fs.total_fours,fs.total_sixes 
+   from Team_Matches as tm
+   left join Team_fours_sixes as fs on tm.team= fs.team
+   order by tm.team;
+
   -------- most plyer of the match winner 
  create view pom
  as
